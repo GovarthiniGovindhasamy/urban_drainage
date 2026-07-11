@@ -1,0 +1,30 @@
+[
+  {
+    "worker_id": 1,
+    "name": "Suresh Kumar",
+    "email": "suresh@gmail.com",
+    "password_hash": "password123",
+    "phone": "+1234567890"
+  },
+  {
+    "worker_id": 2,
+    "name": "Ravi Teja",
+    "email": "ravi@gmail.com",
+    "password_hash": "password123",
+    "phone": "+1987654321"
+  },
+  {
+    "worker_id": 3,
+    "name": "Singh",
+    "email": "singh@gmail.com",
+    "password_hash": "password123",
+    "phone": "+1122334455"
+  },
+  {
+    "worker_id": 4,
+    "name": "Gova",
+    "email": "gova@gmail.com",
+    "password_hash": "password123",
+    "phone": "6379272207"
+  }
+]
