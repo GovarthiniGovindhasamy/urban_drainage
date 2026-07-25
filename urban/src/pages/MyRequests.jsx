@@ -1,6 +1,7 @@
 import Navbar from '../components/Navbar';
 import { useState, useEffect } from 'react';
 import { FileText } from 'lucide-react';
+import { API_BASE } from '../config';
 
 const PRIORITY_COLORS = {
     low: { bg: '#f0fdf4', color: '#16a34a', label: 'Low' },
@@ -24,7 +25,7 @@ export default function MyRequests() {
             const userId = localStorage.getItem('userId');
             if (userId) {
                 try {
-                    const response = await fetch(`http://localhost:5000/api/complaints/${userId}`);
+                    const response = await fetch(`${API_BASE}/api/complaints/${userId}`);
                     const data = await response.json();
                     if (response.ok) setRequests(data);
                 } catch (error) {
@@ -54,67 +55,106 @@ export default function MyRequests() {
                                 <p style={{ fontSize: '0.85rem' }}>Go to Dashboard and submit your first complaint.</p>
                             </div>
                         ) : (
-                            <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-                                <thead>
-                                    <tr style={{ borderBottom: '2px solid #e5e7eb', background: '#f9fafb' }}>
-                                        <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>ID</th>
-                                        <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Title</th>
-                                        <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Category</th>
-                                        <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Priority</th>
-                                        <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Location</th>
-                                        <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Status</th>
-                                        <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Date</th>
-                                        <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Proof</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                            <>
+                                {/* ── Desktop Table ── */}
+                                <table className="desktop-table" style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                                    <thead>
+                                        <tr style={{ borderBottom: '2px solid #e5e7eb', background: '#f9fafb' }}>
+                                            <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>ID</th>
+                                            <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Title</th>
+                                            <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Category</th>
+                                            <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Priority</th>
+                                            <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Location</th>
+                                            <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Status</th>
+                                            <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Date</th>
+                                            <th style={{ padding: '12px 16px', color: '#4b5563', fontSize: '0.8rem', textTransform: 'uppercase' }}>Proof</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {requests.map((req) => {
+                                            const priority = PRIORITY_COLORS[req.priority] || PRIORITY_COLORS.medium;
+                                            const status = STATUS_COLORS[req.status] || STATUS_COLORS['Pending'];
+                                            return (
+                                                <tr key={req.complaint_id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                                                    <td style={{ padding: '14px 16px', fontWeight: '600', color: '#6b7280' }}>#{req.complaint_id}</td>
+                                                    <td style={{ padding: '14px 16px', fontWeight: '500', maxWidth: '180px' }}>
+                                                        <span title={req.title} style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                            {req.title || '—'}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '14px 16px', color: '#6b7280', fontSize: '0.85rem' }}>{req.category || '—'}</td>
+                                                    <td style={{ padding: '14px 16px' }}>
+                                                        <span style={{ padding: '3px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 600, backgroundColor: priority.bg, color: priority.color }}>
+                                                            {priority.label}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '14px 16px', color: '#6b7280', fontSize: '0.85rem' }}>{req.area || req.location || '—'}</td>
+                                                    <td style={{ padding: '14px 16px' }}>
+                                                        <span style={{ padding: '3px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 600, backgroundColor: status.bg, color: status.color }}>
+                                                            {req.status}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '14px 16px', color: '#6b7280', fontSize: '0.85rem' }}>
+                                                        {new Date(req.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                    </td>
+                                                    <td style={{ padding: '14px 16px' }}>
+                                                        {req.status === 'Resolved' && req.proof_photo ? (
+                                                            <img
+                                                                src={req.proof_photo}
+                                                                alt="Resolution Proof"
+                                                                style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', cursor: 'pointer', border: '1px solid #d1d5db' }}
+                                                                title="Click to view full image"
+                                                                onClick={() => { const w = window.open(""); w.document.write(`<img src="${req.proof_photo}" style="max-width: 100%;">`); }}
+                                                            />
+                                                        ) : (
+                                                            <span style={{ color: '#9ca3af', fontSize: '0.8rem' }}>—</span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+
+                                {/* ── Mobile Card List ── */}
+                                <div className="mobile-card-list">
                                     {requests.map((req) => {
                                         const priority = PRIORITY_COLORS[req.priority] || PRIORITY_COLORS.medium;
                                         const status = STATUS_COLORS[req.status] || STATUS_COLORS['Pending'];
                                         return (
-                                            <tr key={req.complaint_id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                                                <td style={{ padding: '14px 16px', fontWeight: '600', color: '#6b7280' }}>#{req.complaint_id}</td>
-                                                <td style={{ padding: '14px 16px', fontWeight: '500', maxWidth: '180px' }}>
-                                                    <span title={req.title} style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                        {req.title || '—'}
-                                                    </span>
-                                                </td>
-                                                <td style={{ padding: '14px 16px', color: '#6b7280', fontSize: '0.85rem' }}>{req.category || '—'}</td>
-                                                <td style={{ padding: '14px 16px' }}>
-                                                    <span style={{ padding: '3px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 600, backgroundColor: priority.bg, color: priority.color }}>
-                                                        {priority.label}
-                                                    </span>
-                                                </td>
-                                                <td style={{ padding: '14px 16px', color: '#6b7280', fontSize: '0.85rem' }}>{req.area || req.location || '—'}</td>
-                                                <td style={{ padding: '14px 16px' }}>
-                                                    <span style={{ padding: '3px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 600, backgroundColor: status.bg, color: status.color }}>
+                                            <div key={req.complaint_id} className="mobile-card">
+                                                <div className="mobile-card-header">
+                                                    <span className="mobile-card-id">#{req.complaint_id}</span>
+                                                    <span style={{ padding: '3px 10px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600, backgroundColor: status.bg, color: status.color }}>
                                                         {req.status}
                                                     </span>
-                                                </td>
-                                                <td style={{ padding: '14px 16px', color: '#6b7280', fontSize: '0.85rem' }}>
-                                                    {new Date(req.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                </td>
-                                                <td style={{ padding: '14px 16px' }}>
-                                                    {req.status === 'Resolved' && req.proof_photo ? (
-                                                        <img 
-                                                            src={req.proof_photo} 
-                                                            alt="Resolution Proof" 
-                                                            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', cursor: 'pointer', border: '1px solid #d1d5db' }} 
-                                                            title="Click to view full image"
-                                                            onClick={() => {
-                                                                const w = window.open("");
-                                                                w.document.write(`<img src="${req.proof_photo}" style="max-width: 100%;">`);
-                                                            }}
+                                                </div>
+                                                <div className="mobile-card-title">{req.title || '—'}</div>
+                                                <div className="mobile-card-row">
+                                                    <span>📁 {req.category || 'No category'}</span>
+                                                    <span style={{ padding: '2px 8px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 600, backgroundColor: priority.bg, color: priority.color }}>
+                                                        {priority.label}
+                                                    </span>
+                                                </div>
+                                                <div className="mobile-card-row">
+                                                    <span>📍 {req.area || req.location || '—'}</span>
+                                                    <span>🗓 {new Date(req.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                                </div>
+                                                {req.status === 'Resolved' && req.proof_photo && (
+                                                    <div style={{ marginTop: '10px' }}>
+                                                        <img
+                                                            src={req.proof_photo}
+                                                            alt="Proof"
+                                                            style={{ width: '60px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #d1d5db', cursor: 'pointer' }}
+                                                            onClick={() => { const w = window.open(""); w.document.write(`<img src="${req.proof_photo}" style="max-width: 100%;">`); }}
                                                         />
-                                                    ) : (
-                                                        <span style={{ color: '#9ca3af', fontSize: '0.8rem' }}>—</span>
-                                                    )}
-                                                </td>
-                                            </tr>
+                                                    </div>
+                                                )}
+                                            </div>
                                         );
                                     })}
-                                </tbody>
-                            </table>
+                                </div>
+                            </>
                         )}
                     </div>
                 </main>
@@ -122,4 +162,3 @@ export default function MyRequests() {
         </div>
     );
 }
-

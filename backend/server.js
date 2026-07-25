@@ -5,7 +5,8 @@ const db = require('./db'); // Will trigger connection & table creation
 
 const app = express();
 
-app.use(cors());
+// Allow all origins — required so phones on the same WiFi can reach the API
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 // Routes

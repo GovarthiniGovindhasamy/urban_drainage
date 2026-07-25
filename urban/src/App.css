@@ -255,6 +255,8 @@
   border: 1px solid var(--gray-200);
 }
 
+.map-container.large-map { height: 350px !important; }
+
 .map-container .leaflet-container {
   height: 100%;
   width: 100%;
@@ -502,25 +504,366 @@
   box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
 }
 
-/* ===== Responsive ===== */
+
+/* ================================================================
+   HAMBURGER / MOBILE DRAWER
+   ================================================================ */
+
+/* Hide hamburger on desktop */
+.navbar-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.navbar-hamburger:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+/* Drawer overlay */
+.mobile-drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1100;
+}
+
+/* Drawer panel */
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 280px;
+  background: linear-gradient(160deg, var(--primary-700) 0%, var(--primary-500) 100%);
+  color: #fff;
+  z-index: 1200;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.25);
+}
+.mobile-drawer--open {
+  transform: translateX(0);
+}
+
+/* Drawer header */
+.mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+.mobile-drawer-close {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Drawer nav links */
+.mobile-drawer-nav {
+  flex: 1;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mobile-drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: 10px;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.18s;
+}
+.mobile-drawer-link:hover,
+.mobile-drawer-link--active {
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+}
+.mobile-drawer-link-icon {
+  display: flex;
+  align-items: center;
+  opacity: 0.9;
+}
+
+/* Drawer logout */
+.mobile-drawer-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  margin: 8px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.mobile-drawer-logout:hover {
+  background: rgba(255,255,255,0.22);
+}
+
+/* ================================================================
+   MOBILE BOTTOM TAB BAR (Admin & Worker Dashboards)
+   ================================================================ */
+.mobile-tab-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  background: #fff;
+  border-top: 1px solid var(--gray-200);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  padding: 6px 0 env(safe-area-inset-bottom, 6px);
+}
+.mobile-tab-bar-inner {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+}
+.mobile-tab-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gray-400);
+  font-size: 0.65rem;
+  font-weight: 500;
+  transition: color 0.18s;
+  position: relative;
+}
+.mobile-tab-btn.active {
+  color: var(--primary-600);
+}
+.mobile-tab-badge {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 16px);
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Add bottom padding to main content on mobile when tab bar is visible */
+.has-mobile-tab-bar .main-content {
+  padding-bottom: 80px;
+}
+
+/* ================================================================
+   MOBILE CARD TABLE — replaces <table> on small screens
+   ================================================================ */
+.mobile-card-list {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+.mobile-card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.mobile-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.mobile-card-id {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-400);
+}
+.mobile-card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: 8px;
+}
+.mobile-card-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  margin-bottom: 6px;
+}
+.mobile-card-actions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-100);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ================================================================
+   RESPONSIVE BREAKPOINTS
+   ================================================================ */
 @media (max-width: 768px) {
+  /* --- Navbar --- */
   .sidebar {
     display: none;
   }
-
-  .main-content {
-    padding: 20px 16px;
-  }
-
   .navbar-links {
     display: none;
   }
+  .navbar-user-info--desktop {
+    display: none;
+  }
+  .navbar-logout-btn--desktop {
+    display: none;
+  }
+  .navbar-hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mobile-drawer-overlay {
+    display: block;
+  }
 
+  /* --- Layout --- */
+  .app-body {
+    padding-top: 60px;
+    flex-direction: column;
+  }
+  .main-content {
+    padding: 16px 14px 24px;
+    max-width: 100% !important;
+  }
+
+  /* --- Stat cards grid --- */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* --- Issue type grid --- */
   .issue-types-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
+  .issue-type-btn {
+    min-width: auto;
+    padding: 10px 8px;
+  }
+
+  /* --- Severity buttons stack --- */
+  .severity-options {
+    flex-direction: column;
+  }
+  .severity-btn {
+    padding: 12px;
+  }
+
+  /* --- Form actions stack --- */
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+  .form-actions .btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  /* --- Buttons min tap size --- */
+  .btn {
+    min-height: 42px;
+  }
+
+  /* --- Mobile tab bar visible --- */
+  .mobile-tab-bar {
+    display: block;
+  }
+  .has-mobile-tab-bar .main-content {
+    padding-bottom: 80px;
+  }
+
+  /* --- Table → Card swap --- */
+  .desktop-table {
+    display: none !important;
+  }
+  .mobile-card-list {
+    display: flex;
+  }
+
+  /* --- Modal full-screen on mobile --- */
+  .modal-overlay {
+    align-items: flex-end !important;
+  }
+  .modal-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 16px 16px 0 0 !important;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  /* --- Admin / Worker inline search bar --- */
+  .navbar-search-inline {
+    display: none !important;
+  }
 }
+
+@media (max-width: 480px) {
+  /* Smaller phones: even tighter */
+  .navbar-brand-text span {
+    display: none;
+  }
+  .form-section {
+    padding: 14px 12px;
+    border-radius: 10px;
+  }
+  .page-title {
+    font-size: 1.2rem;
+  }
+  .auth-container {
+    border-radius: 12px;
+  }
+  .auth-brand-panel {
+    padding: 20px 16px !important;
+  }
+  .auth-form-panel {
+    padding: 20px 16px !important;
+  }
+}
+
 
 /* ==========================================================
    AUTH PAGES — Login & Register

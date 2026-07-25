@@ -7,8 +7,8 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = 5000;
 
-// Middleware
-app.use(cors());
+// Middleware — allow all origins so phones on same WiFi can reach the API
+app.use(cors({ origin: '*' }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
@@ -360,6 +360,8 @@ app.put('/api/worker/complaints/:id/resolve', (req, res) => {
   });
 });
 
-app.listen(port, () => {
+// Listen on 0.0.0.0 so phones on the same WiFi can reach the backend
+app.listen(port, '0.0.0.0', () => {
   console.log(`Backend server running on http://localhost:${port}`);
+  console.log(`📱 Mobile access: http://10.48.44.85:${port}`);
 });

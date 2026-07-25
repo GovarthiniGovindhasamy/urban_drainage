@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { API_BASE } from '../config';
 import {
   Droplets,
   Mail,
@@ -40,7 +41,7 @@ export default function Login() {
     }
 
     try {
-      const endpoint = role === 'Worker' ? 'http://localhost:5000/api/worker/login' : 'http://localhost:5000/api/login';
+      const endpoint = role === 'Worker' ? `${API_BASE}/api/worker/login` : `${API_BASE}/api/login`;
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

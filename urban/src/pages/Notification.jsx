@@ -1,6 +1,7 @@
 import Navbar from '../components/Navbar';
 import { useState, useEffect } from 'react';
 import { CheckCircle, Bell, MapPin, Calendar, Tag } from 'lucide-react';
+import { API_BASE } from '../config';
 
 export default function Notification() {
     const [resolved, setResolved] = useState([]);
@@ -12,10 +13,9 @@ export default function Notification() {
             const userId = localStorage.getItem('userId');
             if (!userId) { setLoading(false); return; }
             try {
-                const res = await fetch(`http://localhost:5000/api/complaints/${userId}`);
+                const res = await fetch(`${API_BASE}/api/complaints/${userId}`);
                 if (res.ok) {
                     const data = await res.json();
-                    // Filter only complaints resolved by admin
                     setResolved(data.filter(c => c.status === 'Resolved'));
                 }
             } catch (err) {
@@ -55,20 +55,20 @@ export default function Notification() {
                                 <div
                                     key={c.complaint_id}
                                     className="form-section"
-                                    style={{ display: 'flex', gap: '18px', alignItems: 'flex-start', borderLeft: '4px solid #16a34a', padding: '20px 24px' }}
+                                    style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', borderLeft: '4px solid #16a34a', padding: '16px 18px' }}
                                 >
                                     {/* Green check icon */}
                                     <div style={{
-                                        width: '44px', height: '44px', borderRadius: '50%',
+                                        width: '40px', height: '40px', borderRadius: '50%',
                                         backgroundColor: '#f0fdf4', display: 'flex',
                                         alignItems: 'center', justifyContent: 'center', flexShrink: 0
                                     }}>
-                                        <CheckCircle size={22} color="#16a34a" />
+                                        <CheckCircle size={20} color="#16a34a" />
                                     </div>
 
                                     {/* Content */}
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '6px' }}>
                                             <div>
                                                 <span style={{
                                                     display: 'inline-block', padding: '2px 10px', borderRadius: '999px',
@@ -77,7 +77,7 @@ export default function Notification() {
                                                 }}>
                                                     ✓ RESOLVED
                                                 </span>
-                                                <h4 style={{ margin: 0, fontSize: '1rem', color: '#111827', fontWeight: 600 }}>
+                                                <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#111827', fontWeight: 600 }}>
                                                     #{c.complaint_id} — {c.title || c.category || 'Complaint'}
                                                 </h4>
                                             </div>
@@ -87,11 +87,11 @@ export default function Notification() {
                                             </span>
                                         </div>
 
-                                        <p style={{ margin: '10px 0 12px', fontSize: '0.88rem', color: '#4b5563', lineHeight: 1.55 }}>
+                                        <p style={{ margin: '8px 0 10px', fontSize: '0.85rem', color: '#4b5563', lineHeight: 1.55 }}>
                                             {c.description || 'No description provided.'}
                                         </p>
 
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.82rem', color: '#6b7280' }}>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '0.8rem', color: '#6b7280' }}>
                                             {(c.area || c.location) && (
                                                 <span>
                                                     <MapPin size={13} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom', color: '#60a5fa' }} />
@@ -113,7 +113,7 @@ export default function Notification() {
 
                                         {/* Proof photo thumbnail */}
                                         {c.proof_photo && (
-                                            <div style={{ marginTop: '14px' }}>
+                                            <div style={{ marginTop: '12px' }}>
                                                 <p style={{ fontSize: '0.78rem', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>
                                                     📷 Proof of Resolution:
                                                 </p>
@@ -127,8 +127,6 @@ export default function Notification() {
                                                         cursor: 'pointer', transition: 'opacity 0.2s'
                                                     }}
                                                     title="Click to view full image"
-                                                    onMouseOver={e => e.target.style.opacity = '0.8'}
-                                                    onMouseOut={e => e.target.style.opacity = '1'}
                                                 />
                                             </div>
                                         )}
@@ -147,13 +145,13 @@ export default function Notification() {
                     style={{
                         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
                         backgroundColor: 'rgba(0,0,0,0.75)', display: 'flex',
-                        alignItems: 'center', justifyContent: 'center', zIndex: 1000, cursor: 'zoom-out'
+                        alignItems: 'center', justifyContent: 'center', zIndex: 2000, cursor: 'zoom-out'
                     }}
                 >
                     <img
                         src={previewImg}
                         alt="Proof fullscreen"
-                        style={{ maxWidth: '90vw', maxHeight: '88vh', borderRadius: '10px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)' }}
+                        style={{ maxWidth: '92vw', maxHeight: '88vh', borderRadius: '10px', boxShadow: '0 8px 40px rgba(0,0,0,0.4)' }}
                         onClick={e => e.stopPropagation()}
                     />
                     <button
