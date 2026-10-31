@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { API_BASE } from "../config";
 import {
   MapPin,
   FileText,
@@ -124,48 +123,33 @@ export default function MaintenanceForm({ prefill = false }) {
       return;
     }
 
-    setLoading(true);
-    try {
-      const payload = {
-        userId,
-        title: formData.title,
-        category: formData.category,
-        description: formData.description,
-        location: formData.address || "Unknown location",
-        area: formData.area,
-        pincode: formData.pincode,
-        landmark: formData.landmark,
-        ward: formData.ward,
-        latitude: formData.latitude,
-        longitude: formData.longitude,
-        priority: formData.priority,
-        images: images.map((img) => img.base64), // array of base64 data URLs
-      };
-
-      const response = await fetch(`${API_BASE}/api/complaints`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setSubmitStatus("success");
-        setSubmitMsg(`Complaint #${data.complaintId} submitted successfully!`);
-        setFormData({ ...EMPTY_FORM });
-        setImages([]);
-      } else {
-        setSubmitStatus("error");
-        setSubmitMsg(data.error || "Failed to submit complaint.");
-      }
-    } catch (err) {
+    if (!formData.category) {
       setSubmitStatus("error");
-      setSubmitMsg(
-        "Failed to connect to server. Make sure the backend is running.",
-      );
-    } finally {
-      setLoading(false);
+      setSubmitMsg("Please select a complaint category.");
+      return;
     }
+
+    if (!formData.description) {
+      setSubmitStatus("error");
+      setSubmitMsg("Please enter a problem description.");
+      return;
+    }
+
+    setLoading(true);
+
+    // Simulate a network delay
+    await new Promise((resolve) => setTimeout(resolve, 700));
+
+    // Generate a random complaint ID (demo mode — no backend)
+    const complaintId = Math.floor(Math.random() * 9000) + 1000;
+
+    setSubmitStatus("success");
+    setSubmitMsg(`Complaint #${complaintId} submitted successfully!`);
+    setFormData({ ...EMPTY_FORM });
+    setImages([]);
+    setLoading(false);
   };
+
 
   const displayLat = formData.latitude;
   const displayLng = formData.longitude;

@@ -1,7 +1,7 @@
 import Navbar from '../components/Navbar';
 import { useState, useEffect } from 'react';
 import { CheckCircle, Bell, MapPin, Calendar, Tag } from 'lucide-react';
-import { API_BASE } from '../config';
+import { DUMMY_COMPLAINTS } from '../dummyData';
 
 export default function Notification() {
     const [resolved, setResolved] = useState([]);
@@ -9,21 +9,12 @@ export default function Notification() {
     const [previewImg, setPreviewImg] = useState(null);
 
     useEffect(() => {
-        const fetchResolved = async () => {
-            const userId = localStorage.getItem('userId');
-            if (!userId) { setLoading(false); return; }
-            try {
-                const res = await fetch(`${API_BASE}/api/complaints/${userId}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    setResolved(data.filter(c => c.status === 'Resolved'));
-                }
-            } catch (err) {
-                console.error('Failed to fetch notifications', err);
-            }
+        const timer = setTimeout(() => {
+            // Filter only resolved complaints from dummy data
+            setResolved(DUMMY_COMPLAINTS.filter(c => c.status === 'Resolved'));
             setLoading(false);
-        };
-        fetchResolved();
+        }, 400);
+        return () => clearTimeout(timer);
     }, []);
 
     const formatDate = (dateStr) =>

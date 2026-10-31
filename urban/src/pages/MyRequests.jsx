@@ -1,7 +1,7 @@
 import Navbar from '../components/Navbar';
 import { useState, useEffect } from 'react';
 import { FileText } from 'lucide-react';
-import { API_BASE } from '../config';
+import { DUMMY_COMPLAINTS } from '../dummyData';
 
 const PRIORITY_COLORS = {
     low: { bg: '#f0fdf4', color: '#16a34a', label: 'Low' },
@@ -21,20 +21,13 @@ export default function MyRequests() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchRequests = async () => {
-            const userId = localStorage.getItem('userId');
-            if (userId) {
-                try {
-                    const response = await fetch(`${API_BASE}/api/complaints/${userId}`);
-                    const data = await response.json();
-                    if (response.ok) setRequests(data);
-                } catch (error) {
-                    console.error('Failed to fetch requests', error);
-                }
-            }
+        // Simulate a brief loading delay, then load from dummy data
+        const timer = setTimeout(() => {
+            // Show all dummy complaints (demo mode — no user filter)
+            setRequests(DUMMY_COMPLAINTS);
             setLoading(false);
-        };
-        fetchRequests();
+        }, 400);
+        return () => clearTimeout(timer);
     }, []);
 
     return (

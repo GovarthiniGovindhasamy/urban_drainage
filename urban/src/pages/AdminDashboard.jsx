@@ -14,7 +14,7 @@ import {
     Menu,
     X
 } from 'lucide-react';
-import { API_BASE } from '../config';
+import { DUMMY_COMPLAINTS, DUMMY_WORKERS } from '../dummyData';
 
 const PRIORITY_COLORS = {
     low: { bg: '#f0fdf4', color: '#16a34a' },
@@ -53,67 +53,31 @@ export default function AdminDashboard() {
         fetchComplaints();
     }, [navigate]);
 
-    const fetchWorkersByLocation = async (complaint) => {
-        try {
-            const area = encodeURIComponent(complaint.area || complaint.location || '');
-            const res = await fetch(`${API_BASE}/api/workers/by-location?area=${area}`);
-            if (res.ok) {
-                const data = await res.json();
-                setWorkers(data);
-            }
-        } catch (err) {
-            console.error('Failed to fetch workers by location', err);
-            setWorkers({ exact: [], others: [] });
-        }
+    const fetchWorkersByLocation = (complaint) => {
+        const area = (complaint.area || complaint.location || '').toLowerCase();
+        const exact = DUMMY_WORKERS.filter(w => w.location.toLowerCase().includes(area) || area.includes(w.location.toLowerCase()));
+        const others = DUMMY_WORKERS.filter(w => !exact.includes(w));
+        setWorkers({ exact, others });
     };
 
-    const fetchComplaints = async () => {
-        try {
-            const res = await fetch(`${API_BASE}/api/admin/complaints`);
-            if (res.ok) {
-                const data = await res.json();
-                setComplaints(data);
-            }
-        } catch (err) {
-            console.error('Failed to fetch admin complaints', err);
-        } finally {
-            setLoading(false);
-        }
+    const fetchComplaints = () => {
+        // Load from dummy data — no backend required
+        setComplaints([...DUMMY_COMPLAINTS]);
+        setLoading(false);
     };
 
-    const updateStatus = async (id, newStatus, workerData = null) => {
-        try {
-            const body = { status: newStatus };
-            if (workerData) {
-                body.worker_name = workerData.name;
-                body.worker_phone = workerData.phone;
-                body.from_date = workerData.fromDate;
-                body.to_date = workerData.toDate;
-            }
-            const res = await fetch(`${API_BASE}/api/admin/complaints/${id}/status`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-            if (res.ok) {
-                setComplaints(prev => prev.map(c =>
-                    c.complaint_id === id ? { ...c, status: newStatus, worker_name: workerData?.name || c.worker_name } : c
-                ));
-            }
-        } catch (err) {
-            console.error('Failed to update status', err);
-        }
+    const updateStatus = (id, newStatus, workerData = null) => {
+        // Update local state only — no backend
+        setComplaints(prev => prev.map(c =>
+            c.complaint_id === id
+                ? { ...c, status: newStatus, worker_name: workerData?.name || c.worker_name }
+                : c
+        ));
     };
 
-    const deleteComplaint = async (id) => {
-        try {
-            const res = await fetch(`${API_BASE}/api/admin/complaints/${id}`, { method: 'DELETE' });
-            if (res.ok) {
-                setComplaints(prev => prev.filter(c => c.complaint_id !== id));
-            }
-        } catch (err) {
-            console.error('Failed to delete complaint', err);
-        }
+    const deleteComplaint = (id) => {
+        // Remove from local state only — no backend
+        setComplaints(prev => prev.filter(c => c.complaint_id !== id));
     };
 
     const handleLogout = () => {

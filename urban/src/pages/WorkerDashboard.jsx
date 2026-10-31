@@ -11,7 +11,7 @@ import {
     Camera,
     Search
 } from 'lucide-react';
-import { API_BASE } from '../config';
+import { DUMMY_COMPLAINTS } from '../dummyData';
 
 const PRIORITY_COLORS = {
     low: { bg: '#f0fdf4', color: '#16a34a' },
@@ -46,25 +46,27 @@ export default function WorkerDashboard() {
         fetchTasks();
     }, [navigate, workerName, workerPhone]);
 
-    const fetchTasks = async () => {
+    const fetchTasks = () => {
         setLoading(true);
-        try {
-            const res = await fetch(`${API_BASE}/api/worker/complaints/${encodeURIComponent(workerPhone)}`);
-            if (res.ok) { setTasks(await res.json()); }
-        } catch (err) {
-            console.error('Failed to fetch tasks', err);
-        } finally {
+        // Load dummy tasks — show all non-pending complaints as worker tasks
+        const workerTasks = DUMMY_COMPLAINTS.filter(c =>
+            ['Assigned', 'In Progress', 'Worker Resolved', 'Resolved'].includes(c.status)
+        );
+        setTimeout(() => {
+            setTasks(workerTasks);
             setLoading(false);
-        }
+        }, 400);
     };
 
     const handleLogout = () => { localStorage.clear(); navigate('/login'); };
 
-    const handleStartWork = async (id) => {
-        try {
-            const res = await fetch(`${API_BASE}/api/worker/complaints/${id}/start`, { method: 'PUT' });
-            if (res.ok) { alert('Work started! Status moved to In Progress.'); fetchTasks(); setSelectedComplaint(null); }
-        } catch (err) { console.error(err); }
+    const handleStartWork = (id) => {
+        // Update local state only — no backend
+        setTasks(prev => prev.map(t =>
+            t.complaint_id === id ? { ...t, status: 'In Progress' } : t
+        ));
+        alert('Work started! Status moved to In Progress.');
+        setSelectedComplaint(prev => prev ? { ...prev, status: 'In Progress' } : null);
     };
 
     const handleResolve = async (id, fileInput) => {
@@ -72,17 +74,14 @@ export default function WorkerDashboard() {
         if (!file) { alert('Please select a photo proof first.'); return; }
         setUploading(true);
         const reader = new FileReader();
-        reader.onloadend = async () => {
-            try {
-                const res = await fetch(`${API_BASE}/api/worker/complaints/${id}/resolve`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ proof_photo: reader.result })
-                });
-                if (res.ok) { alert('Task marked as resolved with proof!'); fetchTasks(); setSelectedComplaint(null); }
-                else { alert('Failed to upload proof.'); }
-            } catch (err) { console.error(err); }
-            finally { setUploading(false); }
+        reader.onloadend = () => {
+            // Update local state only — no backend
+            setTasks(prev => prev.map(t =>
+                t.complaint_id === id ? { ...t, status: 'Worker Resolved', proof_photo: reader.result } : t
+            ));
+            alert('Task marked as resolved with proof!');
+            setSelectedComplaint(prev => prev ? { ...prev, status: 'Worker Resolved', proof_photo: reader.result } : null);
+            setUploading(false);
         };
         reader.readAsDataURL(file);
     };

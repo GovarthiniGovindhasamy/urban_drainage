@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { API_BASE } from '../config';
+import { DUMMY_USERS, DUMMY_WORKERS } from '../dummyData';
 import {
   Droplets,
   Mail,
@@ -31,41 +31,47 @@ export default function Login() {
 
     setLoading(true);
 
-    // Intercept Admin Login credentials from the User Portal
+    // Simulate a small delay for realism
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
+    // Admin login
     if (email === 'admin@example.com' && password === 'admin@1234') {
       localStorage.setItem('isAdmin', 'true');
       localStorage.setItem('adminEmail', email);
-      navigate('/admin/dashboard');
       setLoading(false);
+      navigate('/admin/dashboard');
       return;
     }
 
-    try {
-      const endpoint = role === 'Worker' ? `${API_BASE}/api/worker/login` : `${API_BASE}/api/login`;
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await response.json();
-
-      if (response.ok) {
-        if (role === 'Worker') {
-          localStorage.setItem('workerId', data.workerId);
-          localStorage.setItem('workerName', data.name);
-          localStorage.setItem('workerPhone', data.phone);
-          navigate('/worker/dashboard');
-        } else {
-          localStorage.setItem('userId', data.userId);
-          localStorage.setItem('username', data.username);
-          navigate('/dashboard');
-        }
+    // Worker login
+    if (role === 'Worker') {
+      const worker = DUMMY_WORKERS.find(
+        (w) => w.email === email && w.password === password
+      );
+      if (worker) {
+        localStorage.setItem('workerId', worker.worker_id);
+        localStorage.setItem('workerName', worker.name);
+        localStorage.setItem('workerPhone', worker.phone);
+        setLoading(false);
+        navigate('/worker/dashboard');
       } else {
-        setError(data.error || 'Login failed');
+        setError('Invalid credentials. Try worker@example.com / worker1234');
+        setLoading(false);
       }
-    } catch (err) {
-      setError('Failed to connect to the server');
-    } finally {
+      return;
+    }
+
+    // User login
+    const user = DUMMY_USERS.find(
+      (u) => u.email === email && u.password === password
+    );
+    if (user) {
+      localStorage.setItem('userId', user.userId);
+      localStorage.setItem('username', user.username);
+      setLoading(false);
+      navigate('/dashboard');
+    } else {
+      setError('Invalid credentials. Try user@example.com / user1234');
       setLoading(false);
     }
   };
@@ -102,6 +108,14 @@ export default function Login() {
                 <span>Zone-wise clearance management</span>
               </div>
             </div>
+
+            {/* Demo credentials hint */}
+            <div style={{ marginTop: '28px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', padding: '14px 16px', fontSize: '0.8rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.7 }}>
+              <strong style={{ color: '#fff' }}>Demo Credentials</strong><br />
+              👤 User: <code style={{ color: '#93c5fd' }}>user@example.com</code> / <code style={{ color: '#93c5fd' }}>user1234</code><br />
+              🔧 Worker: <code style={{ color: '#6ee7b7' }}>worker@example.com</code> / <code style={{ color: '#6ee7b7' }}>worker1234</code><br />
+              🛡️ Admin: <code style={{ color: '#fca5a5' }}>admin@example.com</code> / <code style={{ color: '#fca5a5' }}>admin@1234</code>
+            </div>
           </div>
 
         </div>
@@ -115,16 +129,16 @@ export default function Login() {
             </div>
 
             <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', backgroundColor: '#f3f4f6', padding: '6px', borderRadius: '8px' }}>
-              <button 
-                type="button" 
-                onClick={() => setRole('User')} 
+              <button
+                type="button"
+                onClick={() => setRole('User')}
                 style={{ flex: 1, padding: '8px', border: 'none', borderRadius: '6px', cursor: 'pointer', background: role === 'User' ? '#fff' : 'transparent', fontWeight: role === 'User' ? 600 : 400, boxShadow: role === 'User' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none', color: '#1f2937' }}
               >
                 User
               </button>
-              <button 
-                type="button" 
-                onClick={() => setRole('Worker')} 
+              <button
+                type="button"
+                onClick={() => setRole('Worker')}
                 style={{ flex: 1, padding: '8px', border: 'none', borderRadius: '6px', cursor: 'pointer', background: role === 'Worker' ? '#fff' : 'transparent', fontWeight: role === 'Worker' ? 600 : 400, boxShadow: role === 'Worker' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none', color: '#1f2937' }}
               >
                 Worker

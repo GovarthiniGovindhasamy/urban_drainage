@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { API_BASE } from '../config';
 import {
   Droplets,
   Mail,
@@ -36,7 +35,7 @@ export default function Register() {
     e.preventDefault();
     setError('');
 
-    const { fullName, email, phone, zone, password, confirmPassword } = formData;
+    const { fullName, email, password, confirmPassword } = formData;
 
     if (!fullName || !email || !password || !confirmPassword) {
       setError('Please fill in all required fields.');
@@ -55,29 +54,12 @@ export default function Register() {
 
     setLoading(true);
 
-    try {
-      const response = await fetch(`${API_BASE}/api/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: fullName,
-          email: email,
-          password: password,
-        }),
-      });
+    // Simulate registration — no backend required
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
-      const data = await response.json();
-
-      if (response.ok) {
-        navigate('/');
-      } else {
-        setError(data.error || 'Registration failed');
-      }
-    } catch (err) {
-      setError('Failed to connect to the server');
-    } finally {
-      setLoading(false);
-    }
+    setLoading(false);
+    alert('Account created successfully! Please sign in.');
+    navigate('/');
   };
 
   return (
